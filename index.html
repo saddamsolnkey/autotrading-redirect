@@ -76,19 +76,36 @@
         // Set fallback link
         document.getElementById('fallback-link').href = redirectUrl;
         
-        // Redirect to app
-        window.location.href = redirectUrl;
+        // Function to try opening the app
+        function tryOpenApp() {
+            console.log('Attempting to open app with URL:', redirectUrl);
+            
+            // Try to open the app
+            window.location.href = redirectUrl;
+            
+            // If we're still here after 2 seconds, the app probably didn't open
+            setTimeout(function() {
+                console.log('App may not be installed or URL scheme not working');
+                document.getElementById('fallback').style.display = 'block';
+            }, 2000);
+        }
         
-        // Show fallback after 3 seconds
-        setTimeout(function() {
-            document.getElementById('fallback').style.display = 'block';
-        }, 3000);
+        // Try to open the app immediately
+        tryOpenApp();
+        
+        // Also try with a click event for better compatibility
+        document.getElementById('fallback-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Manual click to open app');
+            tryOpenApp();
+        });
         
         // Log for debugging
         console.log('Redirect URL:', redirectUrl);
         console.log('Code:', code);
         console.log('State:', state);
         console.log('Error:', error);
+        console.log('User Agent:', navigator.userAgent);
     </script>
 </body>
 </html>
