@@ -34,12 +34,23 @@
         }
         .fallback-link {
             margin-top: 20px;
-            padding: 10px 20px;
+            padding: 15px 30px;
             background-color: #007AFF;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .fallback-link:hover {
+            background-color: #0056CC;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
         }
     </style>
 </head>
@@ -48,9 +59,10 @@
         <h2>Redirecting to Auto Trading App...</h2>
         <div class="spinner"></div>
         <p>Please wait while we redirect you to the app.</p>
+        <div id="status" class="status">Attempting to open app...</div>
         <p id="fallback" style="display: none;">
             If the app doesn't open automatically, 
-            <a href="#" id="fallback-link" class="fallback-link">click here to open the app</a>
+            <a href="#" id="fallback-link" class="fallback-link">Click here to open the app</a>
         </p>
     </div>
     
@@ -79,15 +91,38 @@
         // Function to try opening the app
         function tryOpenApp() {
             console.log('Attempting to open app with URL:', redirectUrl);
+            document.getElementById('status').textContent = 'Opening app...';
             
-            // Try to open the app
-            window.location.href = redirectUrl;
+            // Try multiple methods to open the app
+            try {
+                // Method 1: Direct location change
+                window.location.href = redirectUrl;
+                
+                // Method 2: Create a hidden iframe (for some browsers)
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = redirectUrl;
+                document.body.appendChild(iframe);
+                
+                // Method 3: Try window.open as fallback
+                setTimeout(function() {
+                    try {
+                        window.open(redirectUrl, '_self');
+                    } catch (e) {
+                        console.log('Window.open failed:', e);
+                    }
+                }, 500);
+                
+            } catch (e) {
+                console.log('Error opening app:', e);
+            }
             
-            // If we're still here after 2 seconds, the app probably didn't open
+            // Show fallback button after 3 seconds
             setTimeout(function() {
-                console.log('App may not be installed or URL scheme not working');
+                console.log('Showing fallback button');
+                document.getElementById('status').textContent = 'App may not be installed or URL scheme not working';
                 document.getElementById('fallback').style.display = 'block';
-            }, 2000);
+            }, 3000);
         }
         
         // Try to open the app immediately
@@ -97,6 +132,7 @@
         document.getElementById('fallback-link').addEventListener('click', function(e) {
             e.preventDefault();
             console.log('Manual click to open app');
+            document.getElementById('status').textContent = 'Opening app manually...';
             tryOpenApp();
         });
         
@@ -106,6 +142,10 @@
         console.log('State:', state);
         console.log('Error:', error);
         console.log('User Agent:', navigator.userAgent);
+        
+        // Additional debugging info
+        console.log('Current URL:', window.location.href);
+        console.log('Is mobile:', /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     </script>
 </body>
 </html>
